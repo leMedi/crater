@@ -1,40 +1,48 @@
-FROM php:8.1-fpm
+# Dockerfile
+#PHP Apache docker image for php8.2
+FROM php:8.1-apache-bullseye
 
-# Arguments defined in docker-compose.yml
-ARG user
-ARG uid
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
+#adds library support for different image upload
+RUN apt update && apt install -y zlib1g-dev \
+    libpng-dev libwebp-dev libjpeg-dev libfreetype6-dev \
+    libonig-dev libxml2-dev \
     zip \
     unzip \
     libzip-dev \
     libmagickwand-dev \
-    mariadb-client
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+    mariadb-client \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN pecl install imagick \
     && docker-php-ext-enable imagick
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath gd
+RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath
+#adds gd library support for different image upload
+RUN docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype
+RUN docker-php-ext-install gd
 
-# Get latest Composer
+#000-default.conf is used to configure the web-server to listen to port 80 which Cloud run requires
+# COPY --from=build /app /var/www/
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN mkdir -p /home/www-data/.composer && \
+    chown -R www-data:www-data /home/www-data
 
-# Create system user to run Composer and Artisan Commands
-RUN useradd -G www-data,root -u $uid -d /home/$user $user
-RUN mkdir -p /home/$user/.composer && \
-    chown -R $user:$user /home/$user
+# Add the composer.json
+COPY ./composer.* ./
+COPY ./database ./database
+RUN composer install --prefer-dist --no-scripts -q -o
 
-# Set working directory
+
 WORKDIR /var/www
+COPY . .
 
-USER $user
+COPY docker-compose/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+RUN chmod 777 -R /var/www/storage/ && \
+    echo "Listen 8080">>/etc/apache2/ports.conf && \
+    chown -R www-data:www-data /var/www/ && \
+    a2enmod rewrite
+# RUN composer require --dev barryvdh/laravel-ide-helpe & composer dump-autoload & composer install --classmap-authoritative --no-dev
+
+
+EXPOSE 80
+user www-data

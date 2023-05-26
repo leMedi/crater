@@ -1,0 +1,37 @@
+name: GitHub Actions Demo
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout source code
+      uses: actions/checkout@v3
+
+    - name: Generate deploy version
+      run: echo "GITHUB_DEPLOY_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+    - name: Print deploy version
+      run: echo ${{ env.GITHUB_DEPLOY_COMMIT }}
+
+    - name: Generate deployment package
+      run: |
+        git archive -o deploy.zip HEAD
+        unzip -l deploy.zip
+
+    - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v21
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: rocketfuel-backend
+        environment_name: rocketfuel-backend-staging
+        region: us-west-2
+        version_label: ${{ env.GITHUB_DEPLOY_COMMIT }}
+        use_existing_version_if_available: true
+        deployment_package: deploy.zip
