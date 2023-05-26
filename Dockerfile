@@ -37,12 +37,10 @@ WORKDIR /var/www
 COPY . .
 
 COPY docker-compose/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
-RUN chmod 777 -R /var/www/storage/ && \
+RUN chmod 777 -R /var/www/storage/ && chmod 777 -R /var/www/bootstrap/cache/ && \
     echo "Listen 8080">>/etc/apache2/ports.conf && \
     chown -R www-data:www-data /var/www/ && \
     a2enmod rewrite
-# RUN composer require --dev barryvdh/laravel-ide-helpe & composer dump-autoload & composer install --classmap-authoritative --no-dev
-
 
 EXPOSE 80
 user www-data
