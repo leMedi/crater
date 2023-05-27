@@ -35,6 +35,10 @@ RUN composer install --prefer-dist --no-scripts -q -o
 
 WORKDIR /var/www
 COPY . .
+COPY .env.prod .env
+
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN php artisan storage:link || true
 
 COPY docker-compose/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 RUN chmod 777 -R /var/www/storage/ && chmod 777 -R /var/www/bootstrap/cache/ && \
@@ -42,5 +46,6 @@ RUN chmod 777 -R /var/www/storage/ && chmod 777 -R /var/www/bootstrap/cache/ && 
     chown -R www-data:www-data /var/www/ && \
     a2enmod rewrite
 
-EXPOSE 80
+
+EXPOSE 8080
 user www-data
