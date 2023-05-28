@@ -38,7 +38,7 @@ COPY . .
 COPY .env.prod .env
 COPY docker-compose/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
-# RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 RUN php artisan storage:link || true
 
 COPY docker-compose/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
