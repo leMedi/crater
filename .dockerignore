@@ -8,3 +8,4 @@ docker-compose.*
 LICENSE
 nginx.conf
 yarn.lock
+node_modules
