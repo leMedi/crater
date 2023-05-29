@@ -47,6 +47,6 @@ RUN chmod 777 -R /var/www/storage/ && chmod 777 -R /var/www/bootstrap/cache/ && 
     chown -R www-data:www-data /var/www/ && \
     a2enmod rewrite
 
-
+RUN echo "database_created" > /var/www/storage/app/database_created
 EXPOSE 8080
 user www-data
