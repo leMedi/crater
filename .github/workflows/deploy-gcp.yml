@@ -2,34 +2,41 @@ name: Deploy to cloudrun
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
-    deploy:
-        name: Deploy to GCP Cloudrun
-        runs-on: ubuntu-latest
+  deploy:
+    name: Deploy to GCP Cloudrun
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/orie
+    steps:
+      - name: Login
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_email: ${{ secrets.GCP_EMAIL }}
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker --quiet
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: make .env file
+        run: |
+          echo $DEV_ENV_FILE > .env
+          ls .env
+        shell: bash
         env:
-          IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/orie
-        steps:
+          ENV_FILE: ${{secrets.ENVFILE_PROD}}
 
-        - name: Login
-          uses: google-github-actions/setup-gcloud@v0
-          with:
-            project_id: ${{ secrets.GCP_PROJECT_ID }}
-            service_account_email: ${{ secrets.GCP_EMAIL }}
-            service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+      - name: Build Docker image
+        run: docker build . -t $IMAGE_NAME
 
-        - name: Configure Docker
-          run: gcloud auth configure-docker --quiet
+      - name: Push Docker image
+        run: docker push $IMAGE_NAME
 
-        - name: Checkout repository
-          uses: actions/checkout@v2
-
-        - name: Build Docker image
-          run: docker build . -t $IMAGE_NAME
-
-        - name: Push Docker image
-          run: docker push $IMAGE_NAME
-
-        - name: Deploy Docker image
-          run: gcloud run deploy orie-prod --image $IMAGE_NAME --region us-central1 --platform managed
+      - name: Deploy Docker image
+        run: gcloud run deploy orie-prod --image $IMAGE_NAME --region us-central1 --platform managed

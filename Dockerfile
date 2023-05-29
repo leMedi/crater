@@ -35,7 +35,6 @@ RUN composer install --prefer-dist --no-scripts -q -o
 
 WORKDIR /var/www
 COPY . .
-COPY .env.prod .env
 COPY docker-compose/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
