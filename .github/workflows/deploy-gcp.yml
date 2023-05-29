@@ -26,7 +26,7 @@ jobs:
 
       - name: make .env file
         run: |
-          echo $DEV_ENV_FILE > .env
+          echo $ENV_FILE | base64 -d > .env
           ls .env
         shell: bash
         env:
