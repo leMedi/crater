@@ -3,7 +3,7 @@
     <img
       id="logo-crater"
       src="/img/crater-logo.png"
-      alt="Crater Logo"
+      alt="Orie Logo"
       class="h-12 mb-5 md:mb-10"
     />
 
