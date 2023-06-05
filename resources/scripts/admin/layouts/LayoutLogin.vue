@@ -149,14 +149,14 @@ const pageDescription = computed(() => {
     return window.login_page_description
   }
 
-  return 'Crater helps you track expenses, record payments & generate beautiful invoices & estimates.'
+  return 'Orie helps you track expenses, record payments & generate beautiful invoices & estimates.'
 })
 
 const copyrightText = computed(() => {
   if (window.copyright_text) {
     return window.copyright_text
   }
-  return 'Copyright @ Crater Invoice, Inc.'
+  return 'Copyright @ Orie Invoice, Inc.'
 })
 
 const loginPageLogo = computed(() => {
