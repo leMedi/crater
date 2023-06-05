@@ -43,7 +43,7 @@ function get_page_title($company_id)
     $routeName = Route::currentRouteName();
 
     $pageTitle = null;
-    $defaultPageTitle = 'Crater - Self Hosted Invoicing Platform';
+    $defaultPageTitle = 'Orie - Meilleur logiciel de gestion financière dans le Cloud';
 
     if (\Storage::disk('local')->has('database_created')) {
         if ($routeName === 'customer.dashboard') {
